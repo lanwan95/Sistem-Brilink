@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Sistem BRILink</title>
+</head>
+<body>
+
+<!-- Login Form -->
+<div id="loginContainer">
+  <h2>🔐 Login Sistem BRILink</h2>
+  <input type="text" id="username" placeholder="Username" /><br />
+  <input type="password" id="password" placeholder="Password" /><br /><br />
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- Menu Navigasi -->
+<nav style="display:none;">
+  <button id="menu-dashboard" class="active">Dashboard</button>
+  <button id="menu-input">Input Transaksi</button>
+  <button id="menu-view">Lihat Transaksi</button>
+  <button id="menu-laporan">Laporan</button>
+  <button id="btn-logout">Logout</button>
+</nav>
+
+<!-- Konten Utama -->
+<main id="content" style="display:none;">
+
+  <!-- Dashboard -->
+  <section id="dashboard" class="page">
+    <h2>Dashboard</h2>
+    <div class="info-box" style="margin-top:20px;">
+      <p><strong>Tarif Layanan:</strong></p>
+      <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 300px;">
+        <thead>
+          <tr>
+            <th>Layanan</th>
+            <th>Tarif</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Tarik Tunai</td><td>Rp 7.500</td></tr>
+          <tr><td>Transfer</td><td>Rp 6.500</td></tr>
+          <tr><td>Cek Saldo</td><td>Rp 4.000</td></tr>
+          <tr><td>Saldo tidak cukup</td><td>Rp 3.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Input Transaksi -->
+  <section id="input" class="page" style="display:none;">
+    <h2>Input Transaksi</h2>
+    <form id="formTransaksi">
+      <label for="nama">Nama Nasabah</label>
+      <input type="text" id="nama" required />
+      
+      <label for="bank">Nama Bank</label>
+      <select id="bank" required>
+        <option value="" disabled selected>Pilih bank</option>
+        <option>BRI</option>
+        <option>BCA</option>
+        <option>BNI</option>
+        <option>Mandiri</option>
+        <option>Danamon</option>
+      </select>
+
+      <label for="jenisTransaksi">Jenis Transaksi</label>
+      <select id="jenisTransaksi" required>
+        <option value="" disabled selected>Pilih jenis transaksi</option>
+        <option value="Tarik Tunai">Tarik Tunai</option>
+        <option value="Transfer">Transfer</option>
+        <option value="Cek Saldo">Cek Saldo</option>
+        <option value="Saldo tidak cukup">Saldo tidak cukup</option>
+      </select>
+
+      <label for="tanggalTransaksi">Tanggal Transaksi</label>
+      <input type="date" id="tanggalTransaksi" required />
+      
+      <label for="jumlah">Jumlah Transaksi (Rp)</label>
+      <input type="number" id="jumlah" min="1" required />
+      
+      <button type="submit">Simpan Transaksi</button>
+    </form>
+  </section>
+
+  <!-- Lihat Transaksi -->
+  <section id="view" class="page" style="display:none;">
+    <h2>Daftar Transaksi</h2>
+    <button id="exportTransaksiBtn">Export ke Excel</button>
+    <table id="tableTransaksi" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; margin-top:10px;">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Bank</th>
+          <th>Jenis Transaksi</th>
+          <th>Tanggal</th>
+          <th>Jumlah Transaksi (Rp)</th>
+          <th>Fee (Rp)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Laporan -->
+  <section id="laporan" class="page" style="display:none;">
+    <h2>Laporan</h2>
+    <p><strong>Total Jumlah Transaksi:</strong> <span id="totalTransaksi">Rp 0</span></p>
+    <p><strong>Total Keuntungan (Fee):</strong> <span id="totalKeuntungan">Rp 0</span></p>
+    <button id="exportLaporanBtn">Export ke Excel</button>
+  </section>
+
+</main>
+
+<!-- SheetJS Library -->
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+<script>
+  // Login function
+  function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (username === 'admin' && password === '12345') {
+      document.getElementById('loginContainer').style.display = 'none';
+      document.querySelector('nav').style.display = 'flex';
+      document.querySelector('main').style.display = 'block';
+      setActiveMenu('dashboard');
+    } else {
+      alert('Login gagal! Username atau password salah.');
+    }
+  }
+
+  // Data transaksi disimpan di array
+  const transaksiData = [];
+
+  // Navigasi menu
+  const menus = ['dashboard', 'input', 'view', 'laporan'];
+  menus.forEach(menu => {
+    document.getElementById('menu-' + menu).addEventListener('click', () => {
+      setActiveMenu(menu);
+    });
+  });
+
+  // Logout dengan konfirmasi
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    if (confirm('Apakah yakin mau keluar?')) {
+      document.getElementById('loginContainer').style.display = 'block';
+      document.querySelector('nav').style.display = 'none';
+      document.querySelector('main').style.display = 'none';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+      setActiveMenu('dashboard');
+    }
+  });
+
+  function setActiveMenu(menu) {
+    menus.forEach(m => {
+      document.getElementById(m).style.display = 'none';
+      document.getElementById('menu-' + m).classList.remove('active');
+    });
+    document.getElementById(menu).style.display = 'block';
+    document.getElementById('menu-' + menu).classList.add('active');
+
+    if (menu === 'view') refreshTable();
+    if (menu === 'laporan') refreshLaporan();
+  }
+
+  // Hitung fee berdasarkan jenis transaksi dan jumlah
+  function hitungFee(jenis, jumlah) {
+    switch (jenis) {
+      case 'Tarik Tunai':
+        return 7500;
+      case 'Transfer':
+        return 6500;
+      case 'Cek Saldo':
+        return 4000;
+      case 'Saldo tidak cukup':
+        return 3000;
+      default:
+        return 0;
+    }
+  }
+
+  document.getElementById('formTransaksi').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('nama').value.trim();
+    const bank = document.getElementById('bank').value;
+    const jenisTransaksi = document.getElementById('jenisTransaksi').value;
+    const tanggal = document.getElementById('tanggalTransaksi').value;
+    const jumlah = parseInt(document.getElementById('jumlah').value);
+
+    if (!nama || !bank || !jenisTransaksi || !tanggal || isNaN(jumlah) || jumlah <= 0) {
+      alert('Mohon isi data dengan benar!');
+      return;
+    }
+    const fee = hitungFee(jenisTransaksi, jumlah);
+    transaksiData.push({ nama, bank, jenisTransaksi, tanggal, jumlah, fee });
+    alert('Transaksi berhasil disimpan!');
+    this.reset();
+    setActiveMenu('view');
+  });
+
+  function refreshTable() {
+    const tbody = document.querySelector('#tableTransaksi tbody');
+    tbody.innerHTML = '';
+    transaksiData.forEach((trx, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${trx.nama}</td>
+        <td>${trx.bank}</td>
+        <td>${trx.jenisTransaksi}</td>
+        <td>${trx.tanggal}</td>
+        <td>Rp ${trx.jumlah.toLocaleString('id-ID')}</td>
+        <td>Rp ${trx.fee.toLocaleString('id-ID')}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function refreshLaporan() {
+    const totalJumlah = transaksiData.reduce((acc, cur) => acc + cur.jumlah, 0);
+    const totalFee = transaksiData.reduce((acc, cur) => acc + cur.fee, 0);
+    document.getElementById('totalTransaksi').textContent = `Rp ${totalJumlah.toLocaleString('id-ID')}`;
+    document.getElementById('totalKeuntungan').textContent = `Rp ${totalFee.toLocaleString('id-ID')}`;
+  }
+
+  // Export transaksi ke Excel
+  document.getElementById('exportTransaksiBtn').addEventListener('click', () => {
+    if (transaksiData.length === 0) {
+      alert('Data transaksi kosong!');
+      return;
+    }
+
+    // Buat array data excel
+    const data = transaksiData.map((trx, i) => ({
+      No: i + 1,
+      Nama: trx.nama,
+      Bank: trx.bank,
+      'Jenis Transaksi': trx.jenisTransaksi,
+      Tanggal: trx.tanggal,
+      'Jumlah Transaksi (Rp)': trx.jumlah,
+      'Fee (Rp)': trx.fee
+    }));
+
+    // Konversi ke worksheet
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Transaksi');
+
+    // Export file
+    XLSX.writeFile(wb, 'Daftar_Transaksi.xlsx');
+  });
+
+  // Export laporan ke Excel
+  document.getElementById('exportLaporanBtn').addEventListener('click', () => {
+    if (transaksiData.length === 0) {
+      alert('Data transaksi kosong!');
+      return;
+    }
+    const totalJumlah = transaksiData.reduce((acc, cur) => acc + cur.jumlah, 0);
+    const totalFee = transaksiData.reduce((acc, cur) => acc + cur.fee, 0);
+
+    // Data laporan sederhana
+    const laporanData = [
+      { Keterangan: 'Total Jumlah Transaksi (Rp)', Nilai: totalJumlah },
+      { Keterangan: 'Total Keuntungan (Fee) (Rp)', Nilai: totalFee }
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(laporanData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+
+    XLSX.writeFile(wb, 'Laporan_Transaksi.xlsx');
+  });
+
+  // Mencegah klik kanan (context menu) di seluruh halaman
+  document.addEventListener('contextmenu', function(event) {
+    event.preventDefault();
+    alert('Klik kanan tidak diizinkan!');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+body { font-family: Arial, sans-serif; margin: 0; background: #f7f9fc; }
+  nav {
+    background-color: #0066cc;
+    color: white;
+    padding: 1em;
+    display: flex;
+    gap: 1em;
+  }
+  nav button {
+    background: #005bb5;
+    border: none;
+    padding: 0.5em 1.2em;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  nav button.active {
+    background: #004080;
+  }
+  main {
+    padding: 1em 2em;
+    min-height: 400px;
+  }
+  h2 {
+    color: #004080;
+  }
+  form input, form select {
+    padding: 0.5em;
+    margin-bottom: 1em;
+    width: 100%;
+    max-width: 300px;
+  }
+  form label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.3em;
+  }
+  form button {
+    background: #0066cc;
+    color: white;
+    border: none;
+    padding: 0.6em 1.5em;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 700px;
+    margin-top: 1em;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.6em;
+    text-align: left;
+  }
+  th {
+    background: #0066cc;
+    color: white;
+  }
+  .info-box {
+    background: #d9edf7;
+    color: #31708f;
+    border: 1px solid #bce8f1;
+    padding: 1em;
+    border-radius: 4px;
+    max-width: 400px;
+    margin-bottom: 1em;
+  }
+
+#loginContainer {
+      text-align: center;
+      margin-top: 100px;
+    }
+    #loginContainer input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+    }
+    #loginContainer button {
+      padding: 10px 20px;
+      background: #0066cc;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    
+    nav, main {
+      display: none;
+    }
