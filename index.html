@@ -185,25 +185,54 @@
         return 0;
     }
   }
+  const jumlahInput = document.getElementById('jumlah');
+const jenisTransaksiInput = document.getElementById('jenisTransaksi');
+
+// Ubah status field "Jumlah" berdasarkan jenis transaksi
+jenisTransaksiInput.addEventListener('change', function () {
+  const jenis = this.value;
+  if (jenis === 'Cek Saldo' || jenis === 'Saldo tidak cukup') {
+    jumlahInput.disabled = true;
+    jumlahInput.value = '';
+  } else {
+    jumlahInput.disabled = false;
+  }
+});
+
 
   document.getElementById('formTransaksi').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const nama = document.getElementById('nama').value.trim();
-    const bank = document.getElementById('bank').value;
-    const jenisTransaksi = document.getElementById('jenisTransaksi').value;
-    const tanggal = document.getElementById('tanggalTransaksi').value;
-    const jumlah = parseInt(document.getElementById('jumlah').value);
+  e.preventDefault();
+  const nama = document.getElementById('nama').value.trim();
+  const bank = document.getElementById('bank').value;
+  const jenisTransaksi = document.getElementById('jenisTransaksi').value;
+  const tanggal = document.getElementById('tanggalTransaksi').value;
 
-    if (!nama || !bank || !jenisTransaksi || !tanggal || isNaN(jumlah) || jumlah <= 0) {
-      alert('Mohon isi data dengan benar!');
+  let jumlah = 0;
+
+  // Validasi input wajib  
+  if (!nama || !bank || !jenisTransaksi || !tanggal) {
+    alert('Mohon isi semua data yang wajib diisi!');
+    return;
+  }
+
+  // Jika jenis transaksi memerlukan jumlah, pastikan terisi dan valid
+  if (jenisTransaksi === 'Tarik Tunai' || jenisTransaksi === 'Transfer') {
+    jumlah = parseInt(document.getElementById('jumlah').value);
+    if (isNaN(jumlah) || jumlah <= 0) {
+      alert('Jumlah transaksi wajib diisi dan harus lebih dari 0!');
       return;
     }
-    const fee = hitungFee(jenisTransaksi, jumlah);
-    transaksiData.push({ nama, bank, jenisTransaksi, tanggal, jumlah, fee });
-    alert('Transaksi berhasil disimpan!');
-    this.reset();
-    setActiveMenu('view');
-  });
+  }
+
+  const fee = hitungFee(jenisTransaksi, jumlah);
+  transaksiData.push({ nama, bank, jenisTransaksi, tanggal, jumlah, fee });
+
+  alert('Transaksi berhasil disimpan!');
+  this.reset();
+  jumlahInput.disabled = false; // Pastikan aktif kembali untuk input berikutnya
+  setActiveMenu('view');
+});
+
 
   function refreshTable() {
     const tbody = document.querySelector('#tableTransaksi tbody');
